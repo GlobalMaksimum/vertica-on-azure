@@ -3,6 +3,8 @@ resource "azurerm_public_ip" "mc_ip" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
+
+  tags = var.tags
 }
 
 
@@ -35,6 +37,9 @@ resource "azurerm_linux_virtual_machine" "vertica_mc" {
     username   = var.admin_username
     public_key = tls_private_key.login_ssh.public_key_openssh
   }
+
+  tags = var.tags
+
 }
 
 resource "azurerm_managed_disk" "mc_opt" {
@@ -44,6 +49,9 @@ resource "azurerm_managed_disk" "mc_opt" {
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = 10
+
+  tags = var.tags
+
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "attach_mc_opt" {
@@ -51,4 +59,5 @@ resource "azurerm_virtual_machine_data_disk_attachment" "attach_mc_opt" {
   virtual_machine_id = azurerm_linux_virtual_machine.vertica_mc.id
   lun                = "20"
   caching            = "ReadWrite"
+
 }

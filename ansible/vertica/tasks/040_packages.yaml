@@ -21,7 +21,7 @@
     state: present
     disable_gpg_check: "{{ no_gpg_check }}"
     name:
-      ["tmux", "nc", "bc", "openssh", "which", "chrony", "krb5-workstation","openssl"]
+      ["tmux", "nc", "bc", "openssh", "which", "chrony", "krb5-workstation","openssl","telnet"]
 
 - name: Install vertica dependencies
   yum:

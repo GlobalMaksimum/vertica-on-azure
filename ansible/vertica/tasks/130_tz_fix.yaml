@@ -9,6 +9,7 @@
     - {key: /usr/share/zoneinfo/Turkey, value: /opt/vertica/share/timezone/Turkey}
     - {key: /usr/share/zoneinfo/Europe/Istanbul, value: /opt/vertica/share/timezone/Europe/Istanbul}
     - {key: /usr/share/zoneinfo/Asia/Istanbul, value: /opt/vertica/share/timezone/Asia/Istanbul}
+  when: inventory_hostname in groups.get(vertica_inventory_group, [])
 
 - name: Ensure correct LANG variable in all
   lineinfile:

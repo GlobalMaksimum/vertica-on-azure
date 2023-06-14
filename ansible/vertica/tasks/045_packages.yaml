@@ -4,10 +4,11 @@
     name: "{{ vertica_rpm }}"
     state: present
     disable_gpg_check: yes
+  when: inventory_hostname in groups.get(vertica_inventory_group, [])
 
 - name: Install Vertica MC rpm on host
   yum:
     name: "{{ vertica_mc_rpm }}"
     state: present
     disable_gpg_check: yes
-  when: vertica_mc_rpm is defined and (mc is defined and mc)
+  when: vertica_mc_inventory_group and inventory_hostname in groups.get(vertica_mc_inventory_group, [])

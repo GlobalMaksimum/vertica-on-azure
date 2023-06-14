@@ -1,22 +1,26 @@
 resource "azurerm_virtual_network" "analytics_network" {
   name                = var.network_name
-  address_space       = ["10.0.0.0/16"]
+  address_space       = [var.virtual_network_cidr]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
+
+  tags = var.tags
+
 }
 
 resource "azurerm_subnet" "vertica_cluster_subnet" {
   name                 = "vertica_cluster_subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.analytics_network.name
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes     = [var.vertica_cluster_cidr]
+
 }
 
 resource "azurerm_subnet" "management_subnet" {
   name                 = "management_subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.analytics_network.name
-  address_prefixes     = ["10.0.2.0/24"]
+  address_prefixes     = [var.vertica_mc_cidr]
 }
 
 # resource "azurerm_subnet" "bastion_subnet" {
@@ -37,12 +41,17 @@ resource "azurerm_network_interface" "vertica_cluster_network_interface" {
     subnet_id                     = azurerm_subnet.vertica_cluster_subnet.id
     private_ip_address_allocation = "Dynamic"
   }
+
+  tags = var.tags
+
 }
 
 resource "azurerm_network_interface_security_group_association" "vertica_cluster_nsg" {
   count                     = var.node_count
   network_interface_id      = azurerm_network_interface.vertica_cluster_network_interface[count.index].id
-  network_security_group_id = azurerm_network_security_group.ssh_nsg.id
+  network_security_group_id = azurerm_network_security_group.public_access_nsg.id
+
+
 }
 
 resource "azurerm_network_interface" "vertica_management_interface" {
@@ -56,11 +65,14 @@ resource "azurerm_network_interface" "vertica_management_interface" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.mc_ip.id
   }
+
+  tags = var.tags
+
 }
 
 resource "azurerm_network_interface_security_group_association" "vertica_mc_nsg" {
   network_interface_id      = azurerm_network_interface.vertica_management_interface.id
-  network_security_group_id = azurerm_network_security_group.ssh_nsg.id
+  network_security_group_id = azurerm_network_security_group.public_access_nsg.id
 }
 
 output "mc_public_ip" {

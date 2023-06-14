@@ -56,6 +56,7 @@ resource "azurerm_linux_virtual_machine" "vertica" {
     public_key = tls_private_key.login_ssh.public_key_openssh
   }
 
+  tags = var.tags
 
 
 }
@@ -68,6 +69,9 @@ resource "azurerm_managed_disk" "vertica_catalog" {
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = 50
+
+  tags = var.tags
+
 }
 
 resource "azurerm_managed_disk" "vertica_opt" {
@@ -78,6 +82,9 @@ resource "azurerm_managed_disk" "vertica_opt" {
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
   disk_size_gb         = 10
+
+  tags = var.tags
+
 }
 
 

@@ -9,9 +9,20 @@ variable "node_count" {
 
 }
 
-variable "vertica_cidr" {
-  default = "10.70.2.0/24"
+variable "virtual_network_cidr"{
+  default = "10.0.0.0/16"
+  description = "Counterpart of VPC in AWS. Defines a complete new network"
 }
+
+variable "vertica_cluster_cidr" {
+  default = "10.0.1.0/24"
+}
+
+variable "vertica_mc_cidr" {
+  default = "10.0.2.0/24"
+}
+
+ 
 
 variable "subscription_id" {
   description = "Azure Subscription Id"
@@ -52,10 +63,6 @@ variable "network_name" {
   description = "Azure network name"
 }
 
-variable "tags" {
-  type        = list(string)
-  description = "Tags for faster resource search"
-}
 
 variable "vertica_vm_size" {
   description = "Azure VM instance type for Vertica VMs (Not that not all types are suitable for vertica deployment)"
@@ -79,7 +86,19 @@ variable "admin_user" {
   description = "VM OS level admin user"
 }
 
-variable "ansible_directory"{
-  default = "ansible"
+variable "ansible_directory" {
+  default     = "ansible"
   description = "Output directory for ansible template generation"
+}
+
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "A set of tags to used with resources"
+}
+
+variable "public_access_source_prefixes"{
+  type = list(string)
+  default = [ "0.0.0.0/0" ]
+  description = "CIDR or * from which public access will be initiated"
 }

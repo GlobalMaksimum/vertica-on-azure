@@ -18,6 +18,9 @@ resource "azurerm_storage_account" "vertica_communal" {
       days = 30
     }
   }
+
+  tags = var.tags
+
   #public_network_access_enabled = false
 }
 
@@ -25,6 +28,8 @@ resource "azurerm_storage_account_network_rules" "communal_rules" {
   storage_account_id = azurerm_storage_account.vertica_communal.id
   default_action     = "Allow"
   bypass             = ["Metrics", "Logging", "AzureServices"]
+
+
 }
 
 resource "azurerm_storage_account" "vertica_datalake" {
@@ -45,7 +50,8 @@ resource "azurerm_storage_account" "vertica_datalake" {
       days = 30
     }
   }
-  #public_network_access_enabled = false
+  tags = var.tags
+
 }
 
 resource "azurerm_storage_account_network_rules" "datalake_rules" {
@@ -68,7 +74,8 @@ resource "azurerm_storage_account" "vertica_backup" {
       days = 30
     }
   }
-  #public_network_access_enabled = false
+  tags = var.tags
+
 }
 
 resource "azurerm_storage_account_network_rules" "backup_rules" {
@@ -82,6 +89,8 @@ resource "azurerm_storage_container" "backup" {
   name                  = "backup"
   storage_account_name  = azurerm_storage_account.vertica_backup.name
   container_access_type = "private"
+
+
 }
 
 resource "azurerm_storage_container" "datalake" {
@@ -103,6 +112,8 @@ resource "azurerm_storage_blob" "communal" {
   storage_container_name = azurerm_storage_container.communal.name
   type                   = "Block"
   access_tier            = "Hot"
+
+
 }
 
 resource "azurerm_storage_blob" "backup" {

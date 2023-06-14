@@ -1,0 +1,9 @@
+.terraform.lock.hcl
+.terraform/
+ansible/.ssh/
+az.json
+azure.tf
+azure.sh
+crendential.json
+terraform.tfstate*
+vertica.tar.gz
