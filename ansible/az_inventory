@@ -1,0 +1,21 @@
+[eon]
+vsunny001 ansible_host=10.0.1.5 cluster_ip=10.0.1.5
+vsunny002 ansible_host=10.0.1.6 cluster_ip=10.0.1.6
+vsunny003 ansible_host=10.0.1.4 cluster_ip=10.0.1.4
+
+[mc]
+vsunny_management ansible_host=10.0.2.4 cluster_ip=10.0.2.4
+
+[vertica:children]
+eon
+mc
+
+[vertica:vars]
+uid=2000
+gid=2000
+
+[all:vars]
+domain=globalmaksimum.az
+host_key_checking=False
+ansible_ssh_user=gmadmin
+ansible_ssh_private_key_file=.ssh/az_gmadmin

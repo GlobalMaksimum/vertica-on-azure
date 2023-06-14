@@ -1,0 +1,13 @@
+---
+- name: Install Vertica rpm on hosts
+  yum:
+    name: "{{ vertica_rpm }}"
+    state: present
+    disable_gpg_check: yes
+
+- name: Install Vertica MC rpm on host
+  yum:
+    name: "{{ vertica_mc_rpm }}"
+    state: present
+    disable_gpg_check: yes
+  when: vertica_mc_rpm is defined and (mc is defined and mc)

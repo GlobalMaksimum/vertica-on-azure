@@ -1,0 +1,25 @@
+---
+- name: Create all repositories
+  yum_repository:
+    file: "{{ item.file }}"
+    baseurl: "{{ item.baseurl }}"
+    description: "{{ item.name }}"
+    name: "{{ item.name }}"
+    gpgcheck: false
+    sslverify: false
+    enabled: true
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial"
+  with_items:
+    - file: CentOS-AppStream
+      name: AppStream
+      baseurl: http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os
+    - file: CentOS-Base
+      name: BaseOS
+      baseurl: http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os
+    - file: CentOS-Extras
+      name: extras
+      baseurl: http://mirror.centos.org/centos/8-stream/extras/x86_64/os
+  when: ( ansible_distribution == "CentOS" and ansible_distribution_major_version == "8")                 
+          
+    
+    

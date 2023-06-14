@@ -1,0 +1,24 @@
+---
+- name: Set RHEL7 HugePage Parameters
+  lineinfile:
+    dest: /etc/rc.local
+    line: "echo {{ item.value }} > {{ item.key }}"
+  with_items:
+    - { key: /sys/kernel/mm/transparent_hugepage/enabled, value: always }
+    - { key: /sys/kernel/mm/transparent_hugepage/defrag, value: never }
+    - {
+        key: /sys/kernel/mm/transparent_hugepage/khugepaged/defrag,
+        value: 0,
+      }
+  when: (( ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version >= "7")
+
+- name: Trigger udev rules
+  lineinfile:
+    dest: /etc/rc.local
+    line: "udevadm trigger"
+
+- name: Set permission for /etc/rc.d/rc.local
+  file:
+    path: /etc/rc.d/rc.local
+    mode: a+x
+  when: (( ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version >= "7")

@@ -1,0 +1,54 @@
+---
+- name: Create auth file
+  ansible.builtin.template:
+    src: home/dbadmin/auth_params.conf.j2
+    dest: /home/dbadmin/auth_params.conf
+    owner: dbadmin
+    group: verticadba
+    mode: "0600"
+
+
+
+- name: Create auth file
+  ansible.builtin.template:
+    src: home/dbadmin/.aws/credentials.j2
+    dest: /home/dbadmin/.aws/credentials
+    owner: dbadmin
+    group: verticadba
+    mode: "0600"
+
+- name: Download license
+  ansible.builtin.get_url:
+    url: "{{ vertica_license }}"
+    dest: /tmp/license.xml
+  run_once: true 
+
+- name: Install Vertica on cluster
+  shell:
+    cmd: |
+      /opt/vertica/sbin/install_vertica -s {{ groups['gcp'] | map('extract', hostvars, 'cluster_ip') | list | join(',') }} \
+      --accept-eula --license=/tmp/license.xml --failure-threshold HALT && touch /vertica.install.done
+    creates: /vertica.install.done
+  register: create_info
+  run_once: true 
+
+- name: Create auth file
+  lineinfile:
+    path: /home/dbadmin/auth_params.conf
+    line: awsauth = {{access_id}}:{{secret_key}}
+    create: True
+    owner: dbadmin
+    group: verticadba
+    mode: "0600"
+
+- name: Create datatabase
+  shell:
+    cmd: |
+      /opt/vertica/bin/admintools -t create_db -d {{ vertica_dbname }} -p 'simply_fast' \
+      -s "{{ groups['vsunny'] | map('extract', hostvars, 'cluster_ip') | list | join(',') }}" --shard-count={{ vertica_shard_count }} \
+      --communal-storage-location {{ vertica_communal_path }} --depot-path=/mnt/vertica/depot -x /home/dbadmin/auth_params.conf \
+      -D /mnt/vertica/data -c /mnt/vertica/catalog --force-removal-at-creation  && touch /home/dbadmin/vertica.install.done
+    creates: /home/dbadmin/vertica.install.done
+  register: create_info
+  become_user: dbadmin
+  run_once: true

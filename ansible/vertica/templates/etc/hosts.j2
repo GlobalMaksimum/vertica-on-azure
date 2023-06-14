@@ -1,0 +1,16 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+{% if 'vertica' in host_groups %}
+# Vertica Nodes (Public Interfaces)
+{% for item in groups['vertica'] %}
+{{hostvars[item].ansible_host}}    {% if use_fqdn %} {{item}}.{{domain}} {% endif %}    {{item}}
+{% endfor %}
+{% endif %}
+
+{% if 'vertica' in host_groups %}
+# Vertica Nodes (Private Interfaces)
+{% for item in groups['vertica'] %}
+{{hostvars[item].cluster_ip}}   {% if use_fqdn %} {{item}}-priv.{{domain}}  {% endif %}  {{item}}-priv
+{% endfor %}
+{% endif %}

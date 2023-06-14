@@ -1,0 +1,15 @@
+---  
+- name: Create vertica group
+  group:
+    name: verticadba
+    gid: "{{ gid }}"
+    state: present
+
+- name: Create vertica user
+  user:
+    name: dbadmin
+    uid: "{{ uid }}"
+    comment: Vertica Administrator
+    group: verticadba
+    state: present
+    password: "{{ dbadmin_pass|password_hash('sha512') }}"

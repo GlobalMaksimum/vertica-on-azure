@@ -1,0 +1,32 @@
+---
+# defaults file for vertica
+
+domain:
+
+
+no_gpg_check: no
+install_jre: no
+
+vertica_rpm:
+vertica_mc_rpm:
+
+host_groups: []
+
+use_fqdn: true
+
+uid: 1000
+gid: 1000
+dbadmin_pass: dbadmin
+
+vertica_data_device:
+
+
+installer_home: /root
+force: false
+
+access_id:
+secret_key:
+awsenablehttps: 0
+awsendpoint: 
+
+vertica_shard_count: 12

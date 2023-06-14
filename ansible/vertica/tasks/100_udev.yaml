@@ -1,0 +1,19 @@
+---
+- name: Delete udev file
+  file:
+    path: /etc/udev/rules.d/99-custom.rules
+    state: absent
+
+- name: Set queue/read_ahead_kb
+  blockinfile:
+    path: /etc/udev/rules.d/99-custom.rules
+    create: yes
+    state: present
+    block: |
+      ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/read_ahead_kb}="2048", ATTR{queue/scheduler}="deadline"
+      ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/read_ahead_kb}="1024", ATTR{queue/scheduler}="noop"
+      ACTION=="add|change", KERNEL=="md[0-9]", ATTR{queue/rotational}=="1", ATTR{queue/read_ahead_kb}="2048", ATTR{queue/scheduler}="deadline"
+      ACTION=="add|change", KERNEL=="md[0-9]", ATTR{queue/rotational}=="0", ATTR{queue/read_ahead_kb}="1024", ATTR{queue/scheduler}="noop"
+  notify:
+    - Trigger udevadm
+

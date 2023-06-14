@@ -1,0 +1,26 @@
+---
+# tasks file for vertica
+- name: Run them all
+  ansible.builtin.include_tasks: 
+    file: "{{ item }}"
+  with_items:
+    #- 000_assert.yaml
+    - 010_ping.yaml
+    #- 020_hostname.yaml
+    #- 030_hosts.yaml
+    #- 035_repository.yaml
+    - 050_user.yaml    
+    - 110_localstorage.yaml
+    - 040_packages.yaml
+    - 045_packages.yaml
+    #- 060_sshequiv.yaml
+    - 070_systemd.yaml
+    - 080_sysctl.yaml
+    - 090_nice.yaml
+    - 100_udev.yaml
+    - 120_rclocal.yaml
+    - 130_tz_fix.yaml
+    #- 140_eon.yaml
+    
+
+

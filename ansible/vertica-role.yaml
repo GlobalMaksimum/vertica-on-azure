@@ -1,0 +1,22 @@
+---
+- name: Apple vertica role
+  hosts: eon,mc
+  become: true
+  roles:
+    - role: vertica
+      vertica_inventory_group: eon
+      installer_home: /home/husnu.sensoy
+      vertica_rpm: https://storage.googleapis.com/artifacts-gm/vertica/vertica-12.0.3-3.x86_64.RHEL6.rpm
+      vertica_license: https://storage.googleapis.com/artifacts-gm/vertica/VERTICA_PREMIUM_TB_Trendyol_Dsm_165176095620629780_05-05-2022_02-29-16-241.xml
+      vertica_data_device: /dev/sdb #ansible  -m shell -a "lsscsi -s" vertica
+      vertica_catalog_device: /dev/sdc
+      domain: globalmaksimum.gcp
+      access_id: GOOG1EMZGWEGIXUHM4E4FDQ4D7ZLMN2AEJQMC2VVP7GRLFXY7C6XBQBJBE2YQ
+      secret_key: iKiWXcJQs3RABp5QrXebn+1uNH4MxuYrlLuj2F1g
+      awsendpoint: storage.googleapis.com
+      awsenablehttps: 1
+      vertica_dbname: vertica
+      vertica_shard_count: 4
+      vertica_communal_path: s3://gm-vertica-prod-xyz/clone
+      uid: 2000
+      gid: 2000%

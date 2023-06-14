@@ -1,0 +1,59 @@
+---
+- name: Link Vertica TZ file into RHEL file to fix Turkey
+  file:
+    src: "{{ item.key }}"
+    dest: "{{ item.value }}"
+    state: link
+    force: True
+  with_items:
+    - {key: /usr/share/zoneinfo/Turkey, value: /opt/vertica/share/timezone/Turkey}
+    - {key: /usr/share/zoneinfo/Europe/Istanbul, value: /opt/vertica/share/timezone/Europe/Istanbul}
+    - {key: /usr/share/zoneinfo/Asia/Istanbul, value: /opt/vertica/share/timezone/Asia/Istanbul}
+
+- name: Ensure correct LANG variable in all
+  lineinfile:
+    dest: "{{ item }}"
+    state: present
+    line: 'export LANG=en_US.UTF-8'
+  with_items:
+    - /etc/profile
+    - /home/dbadmin/.bashrc
+    - /home/dbadmin/.bash_profile
+
+- name: Ensure correct LC_CTYPE variable in all
+  lineinfile:
+    dest: "{{ item }}"
+    state: present
+    line: 'export LC_CTYPE=en_US.UTF-8'
+  with_items:
+    - /etc/profile
+    - /home/dbadmin/.bashrc
+    - /home/dbadmin/.bash_profile
+
+- name: Ensure correct TZ variable in all
+  lineinfile:
+    dest: "{{ item }}"
+    state: present
+    line: 'export TZ="Europe/Istanbul"'
+  with_items:
+    - /etc/profile
+    - /home/dbadmin/.bashrc
+    - /home/dbadmin/.bash_profile
+
+- name: Ensure correct TZ variable in all
+  lineinfile:
+    dest: "{{ item }}"
+    state: absent
+    line: 'export TZ="Turkey/Istanbul"'
+  with_items:
+    - /etc/profile
+    - /home/dbadmin/.bashrc
+    - /home/dbadmin/.bash_profile
+
+- name: Some .bash_profile content
+  lineinfile:
+    dest: /home/dbadmin/.bash_profile
+    state: present
+    line: "{{ item }}"
+  with_items:
+    - export PATH=$PATH:/opt/vertica/bin

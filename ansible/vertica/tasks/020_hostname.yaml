@@ -1,0 +1,4 @@
+---
+- name: Set fqdn hostname
+  hostname:
+    name: "{{ hostname |default(inventory_hostname) }}.{{ domain }}"

@@ -1,0 +1,67 @@
+---
+- name: Update rpm
+  yum:
+    state: latest
+    name: rpm
+
+- name: Update all packages
+  yum:
+    state: latest
+    name: '*'
+
+- name: Install minimum packages
+  yum:
+    state: present
+    disable_gpg_check: "{{ no_gpg_check }}"
+    name: ["libselinux-python", "ntp", "screen"]
+  when: (( ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version <= "7")
+
+- name: Install minimum packages
+  yum:
+    state: present
+    disable_gpg_check: "{{ no_gpg_check }}"
+    name:
+      ["tmux", "nc", "bc", "openssh", "which", "chrony", "krb5-workstation","openssl"]
+
+- name: Install vertica dependencies
+  yum:
+    state: present
+    name:
+      [
+        "sysstat",
+        "tzdata",
+        "mcelog",
+        "perl",
+        "dialog",
+        "java-1.8.0-openjdk",
+        "java-1.8.0-openjdk-devel",
+
+      ]
+
+- name: Install Python 3 on RHEL 8
+  yum:
+    state: present
+    name: ["python3"]
+  when: (( ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "8")
+
+- name: Install pstack packages (dependencies)
+  yum:
+    state: present
+    name: pstack
+  when: (( ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version == "6")
+
+- name: Install gbd packages (dependencies)
+  yum:
+    state: present
+    name: gdb
+  when: (( ansible_distribution == "CentOS" or ansible_distribution == "RedHat") and ansible_distribution_major_version >= "7")
+
+- name: Update tzdata
+  yum:
+    name: tzdata
+    state: latest
+
+- name: Guardium dependencies
+  yum:
+    name: [perl, perl-Data-Dumper, perl-Sys-Syslog]
+    state: present

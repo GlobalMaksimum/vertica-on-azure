@@ -1,0 +1,158 @@
+---
+- name: Set min_free_kbytes
+  block:
+    - shell: /sbin/sysctl vm.min_free_kbytes|cut -d= -f2
+      register: current
+
+    - name: Current Value of vm.min_free_kbytes
+      debug:
+        msg: "{{ current.stdout | int }}"
+        verbosity: 1
+
+    - shell: memtot=`grep MemTotal /proc/meminfo | awk '{printf "%.0f",$2}'` && echo "scale=0;sqrt ($memtot*16)" | bc
+      register: calculated
+
+    - debug:
+        msg: "{{ calculated.stdout | int }}"
+        verbosity: 1
+
+    - debug:
+        msg: "{{ [current.stdout, calculated.stdout, 4096] | map('int') | max }}"
+        verbosity: 1
+
+    - sysctl:
+        name: vm.min_free_kbytes
+        value: "{{ [current.stdout, calculated.stdout, 4096] | map('int') | max }}"
+        state: present
+
+# System Max Open Files Limit
+- name: System Max Open Files Limit
+  block:
+    - shell: /sbin/sysctl fs.file-max |cut -d= -f2
+      register: current
+
+    - debug:
+        msg: "{{ current.stdout | int }}"
+        verbosity: 1
+
+    - sysctl:
+        name: fs.file-max
+        value: "{{ [65536, ansible_facts.memtotal_mb] | map('int') | max }}"
+        state: present
+
+    - pam_limits:
+        domain: "dbadmin"
+        limit_type: "-"
+        limit_item: "nofile"
+        value: "{{ [65536, ansible_facts.memtotal_mb] | map('int') | max }}"
+
+# pid_max Setting
+- name: pid_max Setting
+  block:
+    - shell: /sbin/sysctl kernel.pid_max | cut -d= -f2
+      register: current
+
+    - debug:
+        msg: "{{ current.stdout | int }}"
+        verbosity: 1
+
+    - sysctl:
+        name: kernel.pid_max
+        value: "{{ [ 524288, ((ansible_facts.memtotal_mb | int) + 32768)] | map('int') | max }}"
+        state: present
+
+# Maximum Memory Maps Configuration
+- name: Maximum Memory Maps Configuration
+  block:
+    - shell: /sbin/sysctl vm.max_map_count | cut -d= -f2
+      register: current
+
+    - debug:
+        msg: "{{ current.stdout | int }}"
+        verbosity: 1
+
+    - sysctl:
+        name: vm.max_map_count
+        value: "{{ [ 65536, ((((ansible_facts.memtotal_mb | int)*1024)/16) | int) ] | map('int') | max }}"
+        state: present
+
+    - sysctl:
+        name: vm.swappiness
+        value: 0 
+        state: present
+
+- name: Keepalive related parameters
+  block:
+    - sysctl:
+        name: net.ipv4.tcp_keepalive_intvl
+        value: 60
+        state: present
+
+    - sysctl:
+        name: net.ipv4.tcp_keepalive_probes
+        value: 20
+        state: present
+
+    - sysctl:
+        name: net.ipv4.tcp_keepalive_time
+        value: 600
+        state: present
+
+
+- name: Otther network parameters
+  block:
+    - sysctl:
+        name: net.core.somaxconn
+        value: 1024
+        state: present
+
+    - sysctl:
+        name: net.core.wmem_max
+        value: 16777216
+        state: present
+
+    - sysctl:
+        name: net.core.rmem_max
+        value: 16777216
+        state: present
+
+    - sysctl:
+        name: net.core.wmem_default
+        value: 262144
+        state: present
+
+    - sysctl:
+        name: net.core.rmem_default
+        value: 262144
+        state: present 
+          #https://superuser.com/questions/1718366/kernel-parameter-net-core-netdev-max-backlog-what-happened-when-its-too-low
+    - sysctl:
+        name: net.core.netdev_max_backlog
+        value: 2000
+        state: present 
+
+    - sysctl:
+        name: net.ipv4.tcp_mem
+        value: 16777216 16777216 16777216
+        state: present   
+
+    - sysctl:
+        name: net.ipv4.tcp_wmem
+        value: 8192 262144 8388608
+        state: present  
+    - sysctl:
+        name: net.ipv4.tcp_rmem
+        value: 8192 262144 8388608
+        state: present                         
+    - sysctl:
+        name: net.ipv4.udp_mem
+        value: 16777216 16777216 16777216
+        state: present 
+    - sysctl:
+        name: net.ipv4.udp_rmem_min
+        value: 16384
+        state: present  
+    - sysctl:
+        name: net.ipv4.udp_wmem_min
+        value: 16384
+        state: present             

@@ -1,0 +1,26 @@
+---
+- name: Mask firewalld
+  shell:
+    cmd: systemctl mask firewalld
+
+- name: Disable & Stop firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: false
+
+- name: Disable & Stop Dynamic System Tuning Daemon (tuned)
+  systemd:
+    name: tuned.service
+    state: stopped
+    enabled: false
+
+- name: Enable chrony
+  systemd:
+    name: chronyd
+    state: started
+    enabled: true
+
+- name: Disable selinux
+  selinux:
+    state: disabled

@@ -1,0 +1,74 @@
+---
+- name: Total Memory Size
+  debug:
+    var: ansible_facts.memtotal_mb
+    verbosity: 1
+
+- name: User Address Space Limits
+  block:
+    - shell: ulimit -v
+      register: current_addr_space_limit
+      become_user: dbadmin
+
+    - debug:
+        msg: "{{ current_addr_space_limit.stdout }}"
+        verbosity: 1
+
+    - name: User Address Space Limits (ulimit -v)
+      pam_limits:
+        domain: "dbadmin"
+        limit_type: "-"
+        limit_item: "as"
+        value: "unlimited"
+      when:  current_addr_space_limit.stdout != "unlimited"
+
+- name: User File Size Limit
+  block:
+    - shell: ulimit -f
+      register: current_file_size
+      become_user: dbadmin
+
+    - debug:
+        msg: "{{ current_file_size.stdout }}"
+        verbosity: 1
+    - name: User File Size Limit (ulimit -f)
+      pam_limits:
+        domain: "dbadmin"
+        limit_type: "-"
+        limit_item: "fsize"
+        value: "unlimited"
+      when:  current_file_size.stdout != "unlimited"
+
+# User Process Limit
+- name: User Process Limit
+  block:
+    - shell: ulimit -u
+      register: current_proc_limit
+      become_user: dbadmin
+
+    - debug:
+        msg: "{{ current_proc_limit.stdout | int }}"
+        verbosity: 1
+
+    - name: User Process Limit (ulimit -u)
+      pam_limits:
+        domain: "dbadmin"
+        limit_type: "-"
+        limit_item: "nproc"
+        value: "{{ [ansible_facts.memtotal_mb, 1024] | map('int') | max }}"
+
+# Nice Limit
+- name: Nice Limits
+  block:
+    - name: Nice Limits
+      pam_limits:
+        domain: "dbadmin"
+        limit_type: "-"
+        limit_item: "nice"
+        value: "0"
+
+- name: Pam Limits (Vertica S0070)
+  lineinfile:
+    path: /etc/pam.d/su
+    line: "session required pam_limits.so"
+

@@ -1,0 +1,68 @@
+---
+- name: Fetch all scsi devices for opt
+  shell:
+    cmd: lsscsi |grep "1:0:0:20"|sort -n -k 3 -t:|awk '{print $7}'
+  register: scsi_info
+
+- name: Create Partitions
+  parted:
+    device: "{{ scsi_info.stdout }}"
+    label: gpt
+    number: 1
+    state: present
+
+- name: Create File Sytem
+  filesystem:
+    dev: "{{ scsi_info.stdout }}1"
+    fstype: "xfs"
+    opts: -L OPT
+
+- name: Mount /opt
+  mount:
+    path: /opt
+    src: LABEL=OPT
+    fstype: "xfs"
+    state: mounted
+
+- name: Fetch all scsi devices for opt
+  shell:
+    cmd: lsscsi |grep "1:0:0:10"|sort -n -k 3 -t:|awk '{print $7}'
+  register: scsi_info
+  when: inventory_hostname in groups.get(vertica_inventory_group, [])
+
+- name: Create Partitions
+  parted:
+    device: "{{ scsi_info.stdout }}"
+    label: gpt
+    number: 1
+    state: present
+  when: inventory_hostname in groups.get(vertica_inventory_group, [])
+
+- name: Create File Sytem
+  filesystem:
+    dev: "{{ scsi_info.stdout }}1"
+    fstype: "ext4"
+    opts: -L CATALOG
+  when: inventory_hostname in groups.get(vertica_inventory_group, [])
+
+- name: Mount /mnt/vertica/catalog
+  mount:
+    path: /mnt/vertica/catalog
+    src: LABEL=CATALOG
+    fstype: "ext4"
+    opts: nodiratime,noatime
+    state: mounted
+  when: inventory_hostname in groups.get(vertica_inventory_group, [])
+
+- name: Set ownership for vertica file systems
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: dbadmin
+    group: verticadba
+    recurse: true
+  with_items:
+    - /mnt/vertica/data
+    - /mnt/vertica/catalog
+    - /mnt/vertica/depot
+  when: inventory_hostname in groups.get(vertica_inventory_group, [])

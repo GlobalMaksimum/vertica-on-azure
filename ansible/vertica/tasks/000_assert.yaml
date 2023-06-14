@@ -1,0 +1,37 @@
+---
+- name: Assert that domain variable is not empty
+  assert:
+    that: not (domain == "" or domain is none)
+    fail_msg: domain variable is not available.
+
+- name: Check vertica rpm
+  assert:
+    that: not (vertica_rpm == "" or vertica_rpm is none)
+    fail_msg: vertica_rpm variable is not available.
+
+- name: Check vertica data device
+  assert:
+    that: not (vertica_data_device == "" or vertica_data_device is none)
+    fail_msg: vertica_data_device variable is not available.    
+
+- name: Check vertica license file
+  assert:
+    that: not (vertica_license == "" or vertica_license is none)
+    fail_msg: vertica_license variable is not available.      
+
+- name: Check vertica database name
+  assert:
+    that: not (vertica_dbname == "" or vertica_dbname is none)
+    fail_msg: vertica_dbname variable is not available.    
+
+- name: Check vertica communal shard count
+  assert:
+    that: not (vertica_shard_count == "" or vertica_shard_count is none)
+    fail_msg: vertica_shard_count variable is not available.    
+
+- name: Check vertica s3 path
+  assert:
+    that: not (vertica_communal_path == "" or vertica_communal_path is none)
+    fail_msg: vertica_communal_path variable is not available.      
+
+
